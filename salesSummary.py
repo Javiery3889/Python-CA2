@@ -1,121 +1,87 @@
-#!/usr/bin/python3
-import os 
-import sys 
-import datetime
-import operator
+#!/usr/bin/env python3
+
+# Phase 1 of Python assignment 
+# This application is simulating a sales report generator for a departmental stores in United States of America. 
+# Author: Javier Yong 1726682 DISM/1A/21
+# Last Updated: 20/01/2018
+# Estimated runtime: 1-2mins depending on computer's processing power
+
+import os #for file I/O operations
+import sys #for reading user input from command line
 import shutil
+from mymethods import * #import all function from subfunctions created in mymethods.py
 
-def gettime():
-    curtime = datetime.datetime.now()
-    print(curtime.strftime("%a %b %u  %-d %H:%M:%S"))
-
-def printdefault(sorted_dict):
-    for i in reversed(range(len(sorted_dict))):
-        print("{0:22}{1:>22.2f}".format(sorted_dict[i][0],sorted_dict[i][1]))
-
-def printtopthree(sorted_dict):
-    for i in range(len(sorted_dict)-1,len(sorted_dict)-4,-1):
-        print("{0:22}{1:>22.2f}".format(sorted_dict[i][0],sorted_dict[i][1]))
-
-def printbottomthree(sorted_dict):
-    for i in range(2,-1,-1):
-        print("{0:22}{1:>22.2f}".format(sorted_dict[i][0],sorted_dict[i][1]))
-
-
-if len(sys.argv) != 2:
+# main function
+if len(sys.argv) != 2: #checks if the command line has less or more than two arugments
     print("Usage: salesSummary.py <sales data text file>")
 else:
-    filename = sys.argv[1]    
+    filename = sys.argv[1] #initialise filename variable to store file path for purchases.txt 
     try:
-        f = open(filename)
-    except FileNotFoundError: 
+        f = open(filename) 
+    except FileNotFoundError: #catch error if file does not exist
         print("Invalid data file. Operation aborted.")
     else:
-        gettime()
-        currentwd = os.getcwd()
-        path = currentwd + "/reports"
-        if os.path.isdir(path) is True:
-            shutil.rmtree(path)
+        gettime() #display current time at start of program if file exists
+        currentwd = os.getcwd() 
+        path = currentwd + "/reports" #initialise path variable store the string of the reports directory from the current working directory
+        if os.path.isdir(path) is True: #check if /reports directory exits
+            shutil.rmtree(path) #remove /reports directory and all files and subdirectories in it
         
-        os.mkdir(path)
-        citysalesdict = {}
-        itemsalesdict = {}
+        #else create /reports directory
+        os.mkdir(path) 
 
-        for line in f:
-            splitline = line.split("\t")
-            line = "\t".join(splitline)
-            with open("reports/"+splitline[2], 'a') as writeto_file:
-                writeto_file.write(line)
-                writeto_file.close()
+        citysalesdict, itemsalesdict = updatedict(f) 
+        #initialise two variables, citysalesdict and itemsalesdict, to store the dictionary containing city:salesvalue pairs and 
+        #another dictionary containing itemcategory:salesvalue pairs
+
+        #we can calculate the total sales by using sum function by summing all the values in the dictionary
+        totalsales = sum(citysalesdict.values())        
         
-            if str(splitline[2]) in citysalesdict:
-                currentvalue = float(citysalesdict[str(splitline[2])])
-                sumof = currentvalue + float(splitline[4])
-                citysalesdict.update({str(splitline[2]):sumof})
-            else:
-                citysalesdict.update({str(splitline[2]):float(splitline[4])})
+        #we also can calculate the average sales for cities and item categories by using len function to find number of key:value
+        # pair in each dictionary    
+        cityavg = totalsales/len(citysalesdict)
+        itemavg = totalsales/len(itemsalesdict)
 
-            if str(splitline[3]) in itemsalesdict:
-                currentvalue = float(itemsalesdict[str(splitline[3])])
-                sumof = currentvalue + float(splitline[4])
-                itemsalesdict.update({str(splitline[3]):sumof})
-            else:
-                itemsalesdict.update({str(splitline[3]):float(splitline[4])})
-
-        f.close()
-        sorted_itemsalesdict = sorted(itemsalesdict.items(),key=operator.itemgetter(1))
-                    
-        totalcitysum = sum(citysalesdict.values())
-        cityavg = totalcitysum/len(citysalesdict)
-
-        totalitemsum = sum(itemsalesdict.values())
-        itemavg = totalitemsum/len(itemsalesdict)
-
-        sorted_citysalesdict = sorted(citysalesdict.items(), key=operator.itemgetter(1))
+        #afterwards we sort both dictionaries by salesvalue as it will be easier to access to top and bottom three cities and 
+        #item categories later on while printing, this is done using the sorted method which returns an
+        # ascending order of list of tuples from the dictionary
+        sorted_citysalesdict = sortdict(citysalesdict)
+        sorted_itemsalesdict = sortdict(itemsalesdict)
+        
+        #we can set these two dictionaries to none as we do not need them anymore
         citysalesdict = None 
         itemsalesdict = None
        
-        print("Total Sales of the year is\t{0:.2f}".format(totalcitysum))
-        print("The Average Sales From\t{0} Cities:\n\t{1:35.2f}".format(len(sorted_citysalesdict),cityavg))
-        if len(sorted_citysalesdict) <= 3:
+        print("Total Sales of the year is {0:8.2f}\n".format(totalsales)) 
+        print("The Average Sales From\t{0} Cities :\n{1:44.2f}\n".format(len(sorted_citysalesdict),cityavg))
+        
+        if len(sorted_citysalesdict) <= 3: #check if there are more than three cities in the sorted_citysalesdict (a list of tuples)
             print("Sales Figures by Cities")
-            print("============================================")
-            printdefault(sorted_citysalesdict)
-            print("============================================")
-            print()
+            printdefault(sorted_citysalesdict) #print city and its respective sales value for sales records for that have less than or equals to three cities
 
         else:
-            print("Top Three Cities")
-            print("============================================")
-            printtopthree(sorted_citysalesdict)
-            print("============================================")
-            print()
+            print("Top Three Cities") 
+            printtopthree(sorted_citysalesdict) #else print top 3 cities and their respective sales value for sales records for that have more than three cities
             print("Bottom Three Cities")
-            print("============================================")
-            printbottomthree(sorted_citysalesdict) 
-            print("============================================")
-            print()
+            printbottomthree(sorted_citysalesdict) #and print bottom three cities and thier respective sales value for sales records
 
-        print("The Average Sales From\t{0} Item Categories:\n\t{1:35.2f}".format(len(sorted_itemsalesdict),totalitemsum/len(sorted_itemsalesdict)))
+        print("The Average Sales From\t{0} Item Categories:\n{1:44.2f}\n".format(len(sorted_itemsalesdict),itemavg))
         
-        if len(sorted_itemsalesdict) <= 3:
+        if len(sorted_itemsalesdict) <= 3: #check if there are more than three item categories in sorted_itemsalesdict
             print("Sales Figures by Item Categories")
-            print("============================================")
-            printdefault(sorted_citysalesdict)
-            print("============================================")
-            print()    
+            printdefault(sorted_citysalesdict) #print item categories and its respective sales value for sales records for that have less than or equals to three item categories
         else:
             print("Top Three Item Categories")
-            print("============================================")
-            printtopthree(sorted_itemsalesdict)
-            print("============================================")
-            print()
+            printtopthree(sorted_itemsalesdict) #else print top 3 item categories and their respective sales value for sales records for that have more than three categories
             print("Bottom Three Item Categories")
-            print("============================================")
             printbottomthree(sorted_itemsalesdict)  
-            print("============================================")
-            print()
-        gettime()
+        gettime() #display current time on machine when program ends
+
+'''
+References:
+Removing trailing zeros in strftime - https://stackoverflow.com/questions/904928/python-strftime-date-without-leading-0
+strftime method - https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
+'''
         
 
         
