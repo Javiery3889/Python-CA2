@@ -9,7 +9,7 @@
 import os #for file I/O operations
 import sys #for reading user input from command line
 import shutil
-from mymethods import * #import all function from subfunctions created in mymethods.py
+import myfunctions #import all function from subfunctions created in mymethods.py
 
 # main function
 if len(sys.argv) != 2: #checks if the command line has less or more than two arugments
@@ -21,7 +21,7 @@ else:
     except FileNotFoundError: #catch error if file does not exist
         print("Invalid data file. Operation aborted.")
     else:
-        gettime() #display current time at start of program if file exists
+        myfunctions.gettime() #display current time at start of program if file exists
         currentwd = os.getcwd() 
         path = currentwd + "/reports" #initialise path variable store the string of the reports directory from the current working directory
         if os.path.isdir(path) is True: #check if /reports directory exits
@@ -30,7 +30,7 @@ else:
         #else create /reports directory
         os.mkdir(path) 
 
-        citysalesdict, itemsalesdict = updatedict(f) 
+        citysalesdict, itemsalesdict = myfunctions.updatedict(f) 
         #initialise two variables, citysalesdict and itemsalesdict, to store the dictionary containing city:salesvalue pairs and 
         #another dictionary containing itemcategory:salesvalue pairs
 
@@ -42,11 +42,12 @@ else:
         cityavg = totalsales/len(citysalesdict)
         itemavg = totalsales/len(itemsalesdict)
 
+
         #afterwards we sort both dictionaries by salesvalue as it will be easier to access to top and bottom three cities and 
         #item categories later on while printing, this is done using the sorted method which returns an
         # ascending order of list of tuples from the dictionary
-        sorted_citysalesdict = sortdict(citysalesdict)
-        sorted_itemsalesdict = sortdict(itemsalesdict)
+        sorted_citysalesdict = myfunctions.sortdict(citysalesdict)
+        sorted_itemsalesdict = myfunctions.sortdict(itemsalesdict)
         
         #we can set these two dictionaries to none as we do not need them anymore
         citysalesdict = None 
@@ -57,25 +58,25 @@ else:
         
         if len(sorted_citysalesdict) <= 3: #check if there are more than three cities in the sorted_citysalesdict (a list of tuples)
             print("Sales Figures by Cities")
-            printdefault(sorted_citysalesdict) #print city and its respective sales value for sales records for that have less than or equals to three cities
+            myfunctions.printdefault(sorted_citysalesdict) #print city and its respective sales value for sales records for that have less than or equals to three cities
 
         else:
             print("Top Three Cities") 
-            printtopthree(sorted_citysalesdict) #else print top 3 cities and their respective sales value for sales records for that have more than three cities
+            myfunctions.printtopthree(sorted_citysalesdict) #else print top 3 cities and their respective sales value for sales records for that have more than three cities
             print("Bottom Three Cities")
-            printbottomthree(sorted_citysalesdict) #and print bottom three cities and thier respective sales value for sales records
+            myfunctions.printbottomthree(sorted_citysalesdict) #and print bottom three cities and thier respective sales value for sales records
 
         print("The Average Sales From\t{0} Item Categories:\n{1:44.2f}\n".format(len(sorted_itemsalesdict),itemavg))
         
         if len(sorted_itemsalesdict) <= 3: #check if there are more than three item categories in sorted_itemsalesdict
             print("Sales Figures by Item Categories")
-            printdefault(sorted_citysalesdict) #print item categories and its respective sales value for sales records for that have less than or equals to three item categories
+            myfunctions.printdefault(sorted_itemsalesdict) #print item categories and its respective sales value for sales records for that have less than or equals to three item categories
         else:
             print("Top Three Item Categories")
-            printtopthree(sorted_itemsalesdict) #else print top 3 item categories and their respective sales value for sales records for that have more than three categories
+            myfunctions.printtopthree(sorted_itemsalesdict) #else print top 3 item categories and their respective sales value for sales records for that have more than three categories
             print("Bottom Three Item Categories")
-            printbottomthree(sorted_itemsalesdict)  
-        gettime() #display current time on machine when program ends
+            myfunctions.printbottomthree(sorted_itemsalesdict)  
+        myfunctions.gettime() #display current time on machine when program ends
 
 '''
 References:
