@@ -12,7 +12,7 @@ def gettime():
 
 def printdefault(sorted_dict):
     printdivider()
-    for i in reversed(range(len(sorted_dict))): #reversed method reverses the iterator of range, the iterator instead starts from the last element and ends at the first element 
+    for i in range(len(sorted_dict)-1,-1,-1): #reversed method reverses the iterator of range, the iterator instead starts from the last element and ends at the first element 
         print("{0:22}{1:>22.2f}".format(sorted_dict[i][0],sorted_dict[i][1]))
     printdivider()
     print()
