@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
 import datetime #to get machine's current date and time 
 import sys
 import os
+
 # gettime function used to get and print current time displayed on user's machine using the various methods in datetime module
 def gettime():
     curtime = datetime.datetime.now() #Return the current local date and time.
@@ -42,44 +44,43 @@ def printbottomthree(sorted_dict):
     printdivider()
     print()
 
-#writefile takes in the variable line and path, which is each line form the sales record file and path being the path of the reports directory. 
+#writefile takes in the variable called line which is each line form the sales record file, and path variable being the path of the reports directory. 
 # This line is then broken down into a list using .split() method.
 #Afterwards, the program creates a file with the city name by accessing the third element in the list that was created. We then write the corresponding line
 # to that file. Afterwards we return the list as it will be use for dictionary creation later in updatedict function.    
-def writefile(line,path):
+def writefile(line,path, cityfiledict):
     splitline = line.split("\t")
-    if len(splitline) != 6: #check if file is formatted properly
-        print("Invalid file format!")
-        sys.exit()
-    else:
-        with open(os.path.join(path,splitline[2]), 'a') as writeto_file: #create and open a file using os.path.join
-            writeto_file.write(line)
-            writeto_file.close()
+    filepath = os.path.join(path,splitline[2])
+
+    if splitline[2] not in cityfiledict.keys():
+        cityfiledict.update({splitline[2]:open(filepath,"a")})
+
+    cityfiledict[splitline[2]].write(line)
+        
     return splitline
 
-#updatedict takes in a file variable (f) and reads each line of the sales summary using a for loop. Afterwards it stores each list returned from line.split()
+#updatedict takes in a file variable (f), and path being the path of the reports directory. This function reads each line of the sales summary using a for loop. Afterwards it stores each list returned from line.split()
 #in splitline variable. It then checks if the city/item category is in citysalesdict or itemsalesdict respectivly. If it exists in its respective dictionary,
 #it will get the sales value of that splitline list (splitline[4]) and will add that value with value found it the dictionary. Else if the city or item 
 # category does not exist, it will just add the entry into the dictionary. Afterwards, the function closes the file and returns both dictionaries. 
 def updatedict(f,path):
     citysalesdict = {} #initialise two variables that will store city:salesvalue pair and itemcategory:salesvalue pair respectively
     itemsalesdict = {}
+    cityfiledict = {}
     for line in f: #for loop to read each line in sales records file
-        splitline = writefile(line,path) #call writefile function which will write each line to its respective output city file, and store 
+        splitline = writefile(line,path, cityfiledict)
+        # splitline = writefile(line,path) #call writefile function which will write each line to its respective output city file, and store 
         #each list returned from writefile function after using .split() method 
         
-        if str(splitline[2]) in citysalesdict:
-            currentvalue = float(citysalesdict[str(splitline[2])])
-            citysalesdict.update({str(splitline[2]):currentvalue + float(splitline[4])})
-        else:
-            citysalesdict.update({str(splitline[2]):float(splitline[4])})
+        try:#check if city exists in the citysalesdict as the key
+            citysalesdict[splitline[2]] += float(splitline[4])
+        except KeyError:
+            citysalesdict[splitline[2]] = float(splitline[4])
 
-        if str(splitline[3]) in itemsalesdict:
-            currentvalue = float(itemsalesdict[str(splitline[3])])
-            itemsalesdict.update({str(splitline[3]):currentvalue + float(splitline[4])})
-        else:
-            itemsalesdict.update({str(splitline[3]):float(splitline[4])})
-            
+        try:
+            itemsalesdict[splitline[3]] += float(splitline[4])
+        except KeyError:
+            itemsalesdict[splitline[3]] = float(splitline[4])
     f.close()
     return citysalesdict,itemsalesdict
 
