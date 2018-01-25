@@ -9,7 +9,7 @@ def gettime():
     print(curtime.strftime("%a %b %u  %-d %H:%M:%S")) #formats date and time to the same format as assignment using strftime method
 
 #printdivider takes in the integer variable of len which is multiplied with the "=" character and prints the resulant string, this function is used to separate print statements
-def printdivider(len=44):
+def printdivider(len=45):
     print("="*len)
 
 # printdefault takes in the input parameter of a list of tuples after a dictionary has been sorted, hence the input parameter is called
@@ -20,7 +20,7 @@ def printdivider(len=44):
 def printdefault(sorted_dict):
     printdivider()
     for i in range(len(sorted_dict)-1,-1,-1): #reversed method reverses the iterator of range, the iterator instead starts from the last element and ends at the first element 
-        print("{0:22}{1:>22.2f}".format(sorted_dict[i][0],sorted_dict[i][1]))
+        print("{0:22}{1:>23.2f}".format(sorted_dict[i][0],sorted_dict[i][1]))
     printdivider()
     print()
 
@@ -30,7 +30,7 @@ def printdefault(sorted_dict):
 def printtopthree(sorted_dict):
     printdivider()
     for i in range(len(sorted_dict)-1,len(sorted_dict)-4,-1):
-        print("{0:22}{1:>22.2f}".format(sorted_dict[i][0],sorted_dict[i][1]))
+        print("{0:22}{1:>23.2f}".format(sorted_dict[i][0],sorted_dict[i][1]))
     printdivider()
     print()
 
@@ -40,7 +40,7 @@ def printtopthree(sorted_dict):
 def printbottomthree(sorted_dict):
     printdivider()
     for i in range(2,-1,-1):
-        print("{0:22}{1:>22.2f}".format(sorted_dict[i][0],sorted_dict[i][1]))
+        print("{0:22}{1:>23.2f}".format(sorted_dict[i][0],sorted_dict[i][1]))
     printdivider()
     print()
 
@@ -56,7 +56,7 @@ def updatedict(f,path):
         filepath = os.path.join(path,splitline[2]) #initialise filepath variable to store filepath with the file name of the city read in the current line in reports directory
 
         if splitline[2] not in cityfiledict.keys(): #check if key (city) in cityfiledict
-            cityfiledict[splitline[2]] = open(filepath,"a") #store file pointer to each city as the value of cityfiledict
+            cityfiledict[splitline[2]] = open(filepath + ".txt","a") #store file pointer to each city as the value of cityfiledict
 
         cityfiledict[splitline[2]].write(line) #write the respective lines to the respective city-named files
 
@@ -84,3 +84,4 @@ def sortdict(dictionary):
     sorted_dict = sorted(dictionary.items(),key = lambda x: x[1]) # using key argument with a lambda function.
     return sorted_dict
 #Note. x represent the individual record (city:salesvalue or itemcategory:salesvalue). x[1] refers to the salesvalue column.
+
