@@ -3,7 +3,6 @@
 # Phase 1 of Python assignment 
 # This application is simulating a sales report generator for a departmental stores in United States of America. 
 # Author: Javier Yong 1726682 DISM/1A/21
-# Last Updated: 20/01/2018
 # Estimated runtime: 1-2mins depending on computer's processing power
 
 import os #for file I/O operations
@@ -30,9 +29,9 @@ else:
         #else create /reports directory
         os.mkdir(path) 
 
-        citysalesdict, itemsalesdict = myfunctions.updatedict(f) 
-        #initialise two variables, citysalesdict and itemsalesdict, to store the dictionary containing city:salesvalue pairs and 
-        #another dictionary containing itemcategory:salesvalue pairs
+        citysalesdict, itemsalesdict = myfunctions.updatedict(f,path) 
+        #declare two variables, citysalesdict and itemsalesdict, to store the dictionary containing city:salesvalue pairs and 
+        #another dictionary containing itemcategory:salesvalue pairs that is returned from myfunctions.updatedict
 
         #we can calculate the total sales by using sum function by summing all the values in the dictionary
         totalsales = sum(citysalesdict.values())        
@@ -82,6 +81,8 @@ else:
 References:
 Removing trailing zeros in strftime - https://stackoverflow.com/questions/904928/python-strftime-date-without-leading-0
 strftime method - https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
+Updating dictionaries efficiently - https://stackoverflow.com/questions/15456158/python-dict-update-vs-subscript-to-add-a-single-key-value-pair
+range method - https://www.pythoncentral.io/pythons-range-function-explained/
 '''
         
 
