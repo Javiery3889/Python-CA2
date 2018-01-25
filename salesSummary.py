@@ -8,7 +8,7 @@
 import os #for file I/O operations
 import sys #for reading user input from command line
 import shutil
-import myfunctions #import all function from subfunctions created in mymethods.py
+import myfunctions #import all function from subfunctions created in myfunctions.py
 
 # main function
 if len(sys.argv) != 2: #checks if the command line has less or more than two arugments
@@ -53,7 +53,7 @@ else:
         itemsalesdict = None
        
         print("Total Sales of the year is {0:8.2f}\n".format(totalsales)) 
-        print("The Average Sales From\t{0} Cities :\n{1:44.2f}\n".format(len(sorted_citysalesdict),cityavg))
+        print("The Average Sales From {0:2} Cities :\n{1:45.2f}\n".format(len(sorted_citysalesdict),cityavg))
         
         if len(sorted_citysalesdict) <= 3: #check if there are more than three cities in the sorted_citysalesdict (a list of tuples)
             print("Sales Figures by Cities")
@@ -65,7 +65,7 @@ else:
             print("Bottom Three Cities")
             myfunctions.printbottomthree(sorted_citysalesdict) #and print bottom three cities and thier respective sales value for sales records
 
-        print("The Average Sales From\t{0} Item Categories:\n{1:44.2f}\n".format(len(sorted_itemsalesdict),itemavg))
+        print("The Average Sales From\t{0} Item Categories:\n{1:45.2f}\n".format(len(sorted_itemsalesdict),itemavg))
         
         if len(sorted_itemsalesdict) <= 3: #check if there are more than three item categories in sorted_itemsalesdict
             print("Sales Figures by Item Categories")
@@ -84,3 +84,6 @@ strftime method - https://docs.python.org/3/library/datetime.html#strftime-strpt
 Updating dictionaries efficiently - https://stackoverflow.com/questions/15456158/python-dict-update-vs-subscript-to-add-a-single-key-value-pair
 range method - https://www.pythoncentral.io/pythons-range-function-explained/
 '''
+        
+
+        
