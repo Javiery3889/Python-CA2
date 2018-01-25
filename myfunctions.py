@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import datetime #to get machine's current date and time 
+import datetime
 import sys
 import os
 
@@ -44,43 +44,36 @@ def printbottomthree(sorted_dict):
     printdivider()
     print()
 
-#writefile takes in the variable called line which is each line form the sales record file, and path variable being the path of the reports directory. 
-# This line is then broken down into a list using .split() method.
-#Afterwards, the program creates a file with the city name by accessing the third element in the list that was created. We then write the corresponding line
-# to that file. Afterwards we return the list as it will be use for dictionary creation later in updatedict function.    
-def writefile(line,path, cityfiledict):
-    splitline = line.split("\t")
-    filepath = os.path.join(path,splitline[2])
-
-    if splitline[2] not in cityfiledict.keys():
-        cityfiledict.update({splitline[2]:open(filepath,"a")})
-
-    cityfiledict[splitline[2]].write(line)
-        
-    return splitline
-
-#updatedict takes in a file variable (f), and path being the path of the reports directory. This function reads each line of the sales summary using a for loop. Afterwards it stores each list returned from line.split()
-#in splitline variable. It then checks if the city/item category is in citysalesdict or itemsalesdict respectivly. If it exists in its respective dictionary,
-#it will get the sales value of that splitline list (splitline[4]) and will add that value with value found it the dictionary. Else if the city or item 
-# category does not exist, it will just add the entry into the dictionary. Afterwards, the function closes the file and returns both dictionaries. 
+#updatedict takes in a file pointer variable (f), and path being the path of the reports directory. the function first intialises three dictionaries. Afterwards,
+#the function reads each line of input file using a for loop. It will then write each line to its respective file and update the respective dictionary. This
+#function returns two dictionaires citysalesdict and itemsalesdict.
 def updatedict(f,path):
     citysalesdict = {} #initialise two variables that will store city:salesvalue pair and itemcategory:salesvalue pair respectively
     itemsalesdict = {}
-    cityfiledict = {}
+    cityfiledict = {} #used in when storing file pointers of the files created in reports directory as the value, the key will be the city name.
     for line in f: #for loop to read each line in sales records file
-        splitline = writefile(line,path, cityfiledict)
-        # splitline = writefile(line,path) #call writefile function which will write each line to its respective output city file, and store 
-        #each list returned from writefile function after using .split() method 
-        
-        try:#check if city exists in the citysalesdict as the key
-            citysalesdict[splitline[2]] += float(splitline[4])
-        except KeyError:
-            citysalesdict[splitline[2]] = float(splitline[4])
+        splitline = line.split("\t")
+        filepath = os.path.join(path,splitline[2]) #initialise filepath variable to store filepath with the file name of the city read in the current line in reports directory
 
-        try:
-            itemsalesdict[splitline[3]] += float(splitline[4])
-        except KeyError:
-            itemsalesdict[splitline[3]] = float(splitline[4])
+        if splitline[2] not in cityfiledict.keys(): #check if key (city) in cityfiledict
+            cityfiledict[splitline[2]] = open(filepath,"a") #store file pointer to each city as the value of cityfiledict
+
+        cityfiledict[splitline[2]].write(line) #write the respective lines to the respective city-named files
+
+        try: #try statement executed when key (city) is found in dictionary
+            currentvalue = float(citysalesdict[splitline[2]])
+            sumof = currentvalue + float(splitline[4])
+            citysalesdict[splitline[2]] = sumof
+        except KeyError: #except statemenet is executed when key is not found in citysalesdict
+            citysalesdict[splitline[2]]=float(splitline[4])
+ 
+        try: #try statement executed when key (item category) is found in itemsalesdict
+            currentvalue = float(itemsalesdict[splitline[3]])
+            sumof = currentvalue + float(splitline[4])
+            itemsalesdict[splitline[3]] = sumof
+        except KeyError: #except statemenet is executed when key is not found in itemsalesdict
+            itemsalesdict[splitline[3]]=float(splitline[4])
+             
     f.close()
     return citysalesdict,itemsalesdict
 
@@ -91,4 +84,3 @@ def sortdict(dictionary):
     sorted_dict = sorted(dictionary.items(),key = lambda x: x[1]) # using key argument with a lambda function.
     return sorted_dict
 #Note. x represent the individual record (city:salesvalue or itemcategory:salesvalue). x[1] refers to the salesvalue column.
-
