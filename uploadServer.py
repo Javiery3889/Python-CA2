@@ -1,6 +1,7 @@
-# !/usr/bin/env python3
+#!/usr/bin/env python3
 import socket 
 import signal
+import sys
 TIMEOUT=3
 #function that deals with a client that is connected
 def interrupted(signum, frame):
@@ -29,40 +30,47 @@ def handleConnection(con,serverSocket):
 	connected=False
 	normalExit=True
 	while True:
-		# if len(buf) > 0:
-		# 	#Decode it to text
-		# 	print("Received from Client " +str(buf.decode()))
-		# 	con.sendall(b"k")
-
-		# else: #client terminted
-		try:
-			buf = con.recv(2048)
-			mesg = my_input(str(buf.decode()))
-			serverSocket.settimeout(TIMEOUT)
-			connected=True
-			if len(buf) > 0:
-			#Decode it to text
+		buf = con.recv(2048)
+		print("wdwd"+str(buf))
+		if len(buf) > 0:
+		#Decode it to text
+			if buf != b"N" or buf != b"s":
 				print("Received from Client " +str(buf.decode()))
+				errorflag = checkentry(buf,con)
+				if errorflag is True:
+					con.sendall(b"Operation aborted due to invalid data.")
+					break
 				con.sendall(b"k")
-			elif mesg == None:
-				print("Timeout")
-				serverSocket.close()
-				print("Server Stopped")
-				break
-		except Exception as inst:
-			if str(inst) == "timed out":
-				print("Connection time out")
-			else:            
-				if connected:
-					print("Connection has been broken")
-				else:
-					print("Failed to connect")
-
+		else:
+			return ""
 	con.close()
 	return buf.decode()
+def printerrormsg():
+	
+	return print("Operation aborted due to invalid data.\nUploading Operation has been aborted.\nPlease try again.\n")
+
+def checkentry(buf,con):
+	decodedmsg = buf.decode()
+	error = False
+	splitmsg = decodedmsg.split("\t")
+	print(splitmsg)
+	if len(splitmsg) == 6:
+		try:
+			float(splitmsg[4])
+		except ValueError:
+			error = True
+
+
+	return error
+
+def signal_handler(signal, frame):
+	serverSocket.close()
+	print("\nSocket Closed")
+	sys.exit(0)
 
 #Main 
 serverSocket = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
+serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 serverSocket.bind(('127.0.0.1', 8091))
 
 
@@ -70,7 +78,10 @@ serverSocket.bind(('127.0.0.1', 8091))
 serverSocket.listen(5)
 
 while True:
+	signal.signal(signal.SIGINT, signal_handler)
 	print("Waiting for a new client to connect")
+	signal.signal(signal.SIGALRM, signal_handler)
+	signal.alarm(10)
 	#stays blocked until client has been accepted
 	con, address = serverSocket.accept()
 	print(handleConnection(con,serverSocket))
