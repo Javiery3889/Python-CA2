@@ -2,41 +2,23 @@
 import socket 
 import signal
 import sys
-TIMEOUT=3
-#function that deals with a client that is connected
-def interrupted(signum, frame):
-    # a signal triggered function,
-    #it raises a ValueError once it is triggered.
-    raise ValueError("interrupted")
-    #print ("interrupted")
-def my_input(prompt,tm=TIMEOUT,defval=None):
-    #my_input is a user defined function to provide a keyboard input
-    #function with additonal timeout feature.
-    #When the timeout interval is due, this function will return a default value
-    #even there is no keyboard input.
-    signal.signal(signal.SIGALRM, interrupted) # define the alarm handler
-    signal.alarm(int(tm))   #start an alarm count down. default is 10 seconds
-    try:
-        data = prompt
-        signal.alarm(0) # Keyboard input is entered. clear the alarm
-        if data == '':
-            data=defval
-        return data
-    except:
-        # timeout
-        return defval  
+import os
+import shutil
 
 def handleConnection(con,serverSocket):
 	connected=False
 	normalExit=True
+	citydict = {}
 	while True:
-		buf = con.recv(2048)
-		print("wdwd"+str(buf))
+		buf = con.recv(4048)
 		if len(buf) > 0:
 		#Decode it to text
-			if buf != b"N" or buf != b"s":
+			if buf == b"N" or buf == b"s":
+				con.sendall(b"k")
+				continue
+			else:
 				print("Received from Client " +str(buf.decode()))
-				errorflag = checkentry(buf,con)
+				errorflag = checkentry(buf,con,citydict)
 				if errorflag is True:
 					con.sendall(b"Operation aborted due to invalid data.")
 					break
@@ -45,22 +27,27 @@ def handleConnection(con,serverSocket):
 			return ""
 	con.close()
 	return buf.decode()
-def printerrormsg():
-	
-	return print("Operation aborted due to invalid data.\nUploading Operation has been aborted.\nPlease try again.\n")
 
-def checkentry(buf,con):
+def checkentry(buf,con,citydict):
 	decodedmsg = buf.decode()
 	error = False
 	splitmsg = decodedmsg.split("\t")
-	print(splitmsg)
 	if len(splitmsg) == 6:
 		try:
-			float(splitmsg[4])
+			citydict[splitmsg[2]]=float(splitmsg[4])
 		except ValueError:
 			error = True
+		if len(citydict) != 1:
+			error = True
+			shutil.rmtree(path)
 
-
+		else:
+			filepath = os.path.join(path,splitmsg[2]) 
+			with open(filepath+".txt","a") as fp:
+				fp.write(decodedmsg + "\n")
+				
+	else:
+		error = True
 	return error
 
 def signal_handler(signal, frame):
@@ -72,7 +59,10 @@ def signal_handler(signal, frame):
 serverSocket = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
 serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 serverSocket.bind(('127.0.0.1', 8091))
-
+currentwd = os.getcwd() 
+path = currentwd + "/salesRecords"
+if os.path.isdir(path) is False:
+	os.mkdir(path)
 
 #max 5 connections 
 serverSocket.listen(5)
